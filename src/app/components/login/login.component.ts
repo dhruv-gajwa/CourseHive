@@ -77,9 +77,25 @@ export class LoginComponent implements OnInit {
     let option = this.getTheOptionForNotificationSubcriptionObjectStorageTag();
     this.authservice.getAuth().subscribe( (auth) => {
       if (auth) {
+        // Identify visitor with Pendo on auto-login
+        this.firebaseService.getMyProfileData(this.authservice.getMyFId()).subscribe( (profile: Profile) => {
+          if (profile) {
+            pendo.identify({
+              visitor: {
+                id: profile.fId,
+                full_name: profile.name,
+                rollNo: profile.rollNo,
+                karmaPoints: profile.karmaPoints,
+                image: profile.image,
+                phone: profile.phone,
+                myNewNotificationNumber: profile.myNewNotificationNumber
+              }
+            });
+          }
+        });
         // Here show the add Some content shit wala modal !
         // better load all my data initially and then show modals! this is also a better idea!
-        
+
         // check if the browser is chrome then reask for notification
         this.pushService.getpushSubscriptionObjectFromServer(this.authservice.getMyFId(), option).subscribe( (res: string) => {
           if(res === undefined || res === null) {
@@ -181,6 +197,17 @@ Login(content: any) {
     this.firebaseService.getMyProfileData(this.authservice.getMyFId()).subscribe( (_doc: Profile) => {
       console.log(_doc);
       this.dataSharingService.setProfileData(_doc);
+      pendo.identify({
+        visitor: {
+          id: _doc.fId,
+          full_name: _doc.name,
+          rollNo: _doc.rollNo,
+          karmaPoints: _doc.karmaPoints,
+          image: _doc.image,
+          phone: _doc.phone,
+          myNewNotificationNumber: _doc.myNewNotificationNumber
+        }
+      });
     });
 
 
@@ -263,6 +290,17 @@ signUpUsingEmailAndPassword() {
     this.firebaseService.SaveEmailPasswordPhone(this.email, this.password, this.phone).then( _ => {
 
       this.firebaseService.createNewProfile(p.fId, p).then( _ => {
+        pendo.identify({
+          visitor: {
+            id: p.fId,
+            full_name: p.name,
+            rollNo: p.rollNo,
+            karmaPoints: p.karmaPoints,
+            image: p.image,
+            phone: p.phone,
+            myNewNotificationNumber: p.myNewNotificationNumber
+          }
+        });
         this.authservice.updateBAsicProfileDetails(this.image, this.name).then( _ => {
           this.authservice.sendVerificationMail(this.email).then( _ => {
 
