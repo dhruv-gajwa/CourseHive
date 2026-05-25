@@ -208,6 +208,13 @@ Login(content: any) {
           myNewNotificationNumber: _doc.myNewNotificationNumber
         }
       });
+      pendo.track('user_logged_in', {
+        rollNo: _doc.rollNo,
+        karmaPoints: _doc.karmaPoints,
+        browser: this.getBrowserName(),
+        isMobile: this.isMobile(),
+        hasNotificationSubscription: _doc.myNewNotificationNumber > 0
+      });
     });
 
 
@@ -238,6 +245,9 @@ Login(content: any) {
 sendPasswordResetEmaail(content: any) {
   this.authservice.sendPasswordResetEmaail(this.email).then(_ => {
     console.log( _ );
+    pendo.track('password_reset_requested', {
+      emailDomain: this.email.slice(this.email.indexOf('@'))
+    });
     this.resetMessage = 'Link sent to your email address ' + this.email ;
     this.modalService.open(content);
   }).catch( err => {
@@ -303,7 +313,15 @@ signUpUsingEmailAndPassword() {
         });
         this.authservice.updateBAsicProfileDetails(this.image, this.name).then( _ => {
           this.authservice.sendVerificationMail(this.email).then( _ => {
-
+            pendo.track('user_registered', {
+              rollNo: p.rollNo,
+              department: p.rollNo.slice(0, 2),
+              programme: p.rollNo.slice(4, 5),
+              year: p.rollNo.slice(2, 4),
+              hasPhone: !!this.phone,
+              browser: this.getBrowserName(),
+              isMobile: this.isMobile()
+            });
             this.router.navigate(['/home']);
           });
 
@@ -334,7 +352,12 @@ subscribeToPush() {
           console.log(pushSubscription.getKey('p256dh'));
           this.pushService.sendpushSubscriptionObjectToServer(JSON.stringify(pushSubscription), this.authservice.getMyFId(),
           this.getTheOptionForNotificationSubcriptionObjectStorageTag()).then(res => {
-            console.log(res)
+            console.log(res);
+            pendo.track('push_notification_subscribed', {
+              browser: this.getBrowserName(),
+              isMobile: this.isMobile(),
+              deviceTag: this.getTheOptionForNotificationSubcriptionObjectStorageTag()
+            });
           });
          // window.open(`https://stackoverflow.com/questions/31328365/how-to-start-http-server-locally`);
           // this.pushService.addSubscriber(pushSubscription)

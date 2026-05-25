@@ -64,6 +64,11 @@ export class HomepageComponent implements OnInit {
       return;
     }
     let s: string = this.makeCourseIdSuitable(this.CourseId);
+    pendo.track('course_search_executed', {
+      query: s,
+      queryLength: this.CourseId.length,
+      searchType: 'direct'
+    });
     this.router.navigate(['/course/' + s]);
   }
   makeCourseIdSuitable(CourseId: string): string {
@@ -96,8 +101,11 @@ export class HomepageComponent implements OnInit {
           this.filteredCoursesList.shift();
         }
       });
-
-      
+      pendo.track('course_search_autocomplete_used', {
+        query: q,
+        resultsCount: res.length,
+        searchMethod: 'byName'
+      });
     });
     
     if(q.length < 7 ) {
