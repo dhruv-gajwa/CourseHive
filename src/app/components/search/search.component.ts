@@ -37,6 +37,11 @@ export class SearchComponent implements OnInit {
       return;
     }
     let s: string = this.makeCourseIdSuitable(this.CourseId);
+    pendo.track('course_searched', {
+      query: this.CourseId,
+      searchType: this.CourseId.length <= 6 ? 'courseId' : 'courseName',
+      queryLength: this.CourseId.length
+    });
     this.router.navigate(['/course/' + s]);
   }
   makeCourseIdSuitable(CourseId: string): string {

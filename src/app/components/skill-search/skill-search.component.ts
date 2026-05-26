@@ -43,13 +43,18 @@ export class SkillSearchComponent implements OnInit {
     // als here we are initiating the autoocomplete
     console.log($event);
     if ($event.key === 'Enter') {
+      pendo.track('skill_searched', {
+        query: $event.target.value,
+        queryLength: $event.target.value.length,
+        resultsCount: this.filteredSkillList.length
+      });
       this.SearchClicked();
       return;
     }
     if ($event.timeStamp - this.lastKeypress > 100) {
-      let q =  this.setFirstLetterCapital($event.target.value);     
+      let q =  this.setFirstLetterCapital($event.target.value);
       console.log(q, q.toUpperCase())
-      
+
     this.searchService.searchSkill(q).subscribe( res => {
       res.forEach(m => {
         console.log(m['name'])

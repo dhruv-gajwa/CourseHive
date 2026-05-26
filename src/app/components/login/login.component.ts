@@ -239,9 +239,17 @@ sendPasswordResetEmaail(content: any) {
   this.authservice.sendPasswordResetEmaail(this.email).then(_ => {
     console.log( _ );
     this.resetMessage = 'Link sent to your email address ' + this.email ;
+    pendo.track('password_reset_requested', {
+      email: this.email,
+      success: true
+    });
     this.modalService.open(content);
   }).catch( err => {
     this.resetMessage = 'Cant send password reset link to  ' + this.email + ' err =>' + err ;
+    pendo.track('password_reset_requested', {
+      email: this.email,
+      success: false
+    });
     console.log(err);
   });
 }
@@ -301,6 +309,13 @@ signUpUsingEmailAndPassword() {
             myNewNotificationNumber: p.myNewNotificationNumber
           }
         });
+        pendo.track('user_signed_up', {
+          rollNo: p.rollNo,
+          department: p.rollNo.slice(0, 2),
+          programme: p.rollNo.slice(4, 5),
+          year: p.rollNo.slice(2, 4),
+          hasPhone: p.phone !== '' && p.phone !== undefined
+        });
         this.authservice.updateBAsicProfileDetails(this.image, this.name).then( _ => {
           this.authservice.sendVerificationMail(this.email).then( _ => {
 
@@ -334,7 +349,12 @@ subscribeToPush() {
           console.log(pushSubscription.getKey('p256dh'));
           this.pushService.sendpushSubscriptionObjectToServer(JSON.stringify(pushSubscription), this.authservice.getMyFId(),
           this.getTheOptionForNotificationSubcriptionObjectStorageTag()).then(res => {
-            console.log(res)
+            console.log(res);
+            pendo.track('push_notification_subscribed', {
+              browser: this.getBrowserName(),
+              deviceType: this.isMobile() ? 'mobile' : 'desktop',
+              subscriptionTag: this.getTheOptionForNotificationSubcriptionObjectStorageTag()
+            });
           });
          // window.open(`https://stackoverflow.com/questions/31328365/how-to-start-http-server-locally`);
           // this.pushService.addSubscriber(pushSubscription)
