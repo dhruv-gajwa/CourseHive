@@ -322,6 +322,13 @@ signUpUsingEmailAndPassword() {
               browser: this.getBrowserName(),
               isMobile: this.isMobile()
             });
+            pendo.track('user_signed_up', {
+              rollNo: p.rollNo,
+              department: p.rollNo.slice(0, 2),
+              programme: p.rollNo.slice(4, 5),
+              year: p.rollNo.slice(2, 4),
+              hasPhone: p.phone !== '' && p.phone !== undefined
+            });
             this.router.navigate(['/home']);
           });
 
