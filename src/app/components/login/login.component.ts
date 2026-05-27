@@ -208,6 +208,14 @@ Login(content: any) {
           myNewNotificationNumber: _doc.myNewNotificationNumber
         }
       });
+      if (typeof pendo !== 'undefined') {
+        pendo.track('user_logged_in', {
+          email: _doc.fId,
+          browserName: this.getBrowserName(),
+          isMobile: this.isMobile(),
+          karmaPoints: _doc.karmaPoints
+        });
+      }
     });
 
 
@@ -238,6 +246,11 @@ Login(content: any) {
 sendPasswordResetEmaail(content: any) {
   this.authservice.sendPasswordResetEmaail(this.email).then(_ => {
     console.log( _ );
+    if (typeof pendo !== 'undefined') {
+      pendo.track('password_reset_requested', {
+        email: this.email
+      });
+    }
     this.resetMessage = 'Link sent to your email address ' + this.email ;
     this.modalService.open(content);
   }).catch( err => {
@@ -303,7 +316,14 @@ signUpUsingEmailAndPassword() {
         });
         this.authservice.updateBAsicProfileDetails(this.image, this.name).then( _ => {
           this.authservice.sendVerificationMail(this.email).then( _ => {
-
+            if (typeof pendo !== 'undefined') {
+              pendo.track('user_registered', {
+                email: this.email,
+                name: this.name,
+                rollNo: p.rollNo,
+                registrationMethod: 'email_password'
+              });
+            }
             this.router.navigate(['/home']);
           });
 
@@ -334,7 +354,14 @@ subscribeToPush() {
           console.log(pushSubscription.getKey('p256dh'));
           this.pushService.sendpushSubscriptionObjectToServer(JSON.stringify(pushSubscription), this.authservice.getMyFId(),
           this.getTheOptionForNotificationSubcriptionObjectStorageTag()).then(res => {
-            console.log(res)
+            console.log(res);
+            if (typeof pendo !== 'undefined') {
+              pendo.track('push_notification_subscribed', {
+                browserName: this.getBrowserName(),
+                isMobile: this.isMobile(),
+                subscriptionStatus: 'subscribed'
+              });
+            }
           });
          // window.open(`https://stackoverflow.com/questions/31328365/how-to-start-http-server-locally`);
           // this.pushService.addSubscriber(pushSubscription)

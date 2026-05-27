@@ -64,6 +64,13 @@ export class HomepageComponent implements OnInit {
       return;
     }
     let s: string = this.makeCourseIdSuitable(this.CourseId);
+    if (typeof pendo !== 'undefined') {
+      pendo.track('course_search_executed', {
+        query: this.CourseId,
+        searchType: 'courseId',
+        resultCount: this.filteredCoursesList.length
+      });
+    }
     this.router.navigate(['/course/' + s]);
   }
   makeCourseIdSuitable(CourseId: string): string {
@@ -96,8 +103,13 @@ export class HomepageComponent implements OnInit {
           this.filteredCoursesList.shift();
         }
       });
-
-      
+      if (typeof pendo !== 'undefined') {
+        pendo.track('course_search_autocomplete_used', {
+          query: q,
+          resultsCount: res.length,
+          searchMethod: 'byName'
+        });
+      }
     });
     
     if(q.length < 7 ) {

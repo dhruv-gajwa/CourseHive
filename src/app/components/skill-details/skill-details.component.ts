@@ -157,6 +157,15 @@ export class SkillDetailsComponent implements OnInit {
     
         this.firebaseServie.addSkillInStudentData(mySkill, this.authService.getMyFId()).then(()=> {
           console.log('added To My Skills');
+          if (typeof pendo !== 'undefined') {
+            pendo.track('skill_added_to_profile', {
+              skillId: mySkill.id,
+              skillName: mySkill.name,
+              expertiseLevel: '',
+              isNewSkill: false,
+              source: 'skill_details_page'
+            });
+          }
           document.getElementById('skillPinButton').innerText = `Unpin`;
           let studentInSkill = new StudentsInSkills();
           studentInSkill.name = this.profile.name;
