@@ -279,6 +279,14 @@ export class CourseDetailsComponent implements OnInit {
 
             this.firebaseService.AskAQuestion(this.Que,
               auth.displayName, auth.email.slice(0, 8), this.courseId ).then( _ => {
+                if (typeof pendo !== 'undefined') {
+                  pendo.track('course_question_asked', {
+                    courseId: this.courseId,
+                    questionLength: question.question.length,
+                    askerName: question.askedByName,
+                    askerRollNo: question.askedByRollNo,
+                  });
+                }
                 this.Que = '';
                 this.course.fAQs.unshift(question);
               });
@@ -320,6 +328,15 @@ export class CourseDetailsComponent implements OnInit {
         console.log(this.AnswerToOpenQuestion);
         this.firebaseService.AnswerAQuestion(this.AnswerToOpenQuestion, this.OpenedQuestion.fId,
           this.courseId).then(_ => {
+            if (typeof pendo !== 'undefined') {
+              pendo.track('course_question_answered', {
+                courseId: this.courseId,
+                questionFid: this.OpenedQuestion.fId,
+                answerLength: this.AnswerToOpenQuestion.answer.length,
+                answererName: this.AnswerToOpenQuestion.fromName,
+                answererRollNo: this.AnswerToOpenQuestion.fromRollNo,
+              });
+            }
             this.course.fAQs.forEach((faq: FAQ) => {
               if (faq.fId === this.OpenedQuestion.fId) {
                 faq.answers.unshift(this.AnswerToOpenQuestion);
@@ -338,6 +355,13 @@ export class CourseDetailsComponent implements OnInit {
 
 
     DownloadClicked(link: string) {
+      if (typeof pendo !== 'undefined') {
+        pendo.track('course_resource_downloaded', {
+          courseId: this.courseId,
+          documentType: '',
+          downloadLink: link,
+        });
+      }
       window.open(link, '_blank');
     }
 
@@ -381,7 +405,18 @@ export class CourseDetailsComponent implements OnInit {
           console.log(s);
           this.uploadContent.documentAddress = s;
           this.uploadContent.fId = this.afs.createId();
-          this.firebaseService.UploadContent(this.uploadContent, this.courseId).then( _ => { 
+          this.firebaseService.UploadContent(this.uploadContent, this.courseId).then( _ => {
+            if (typeof pendo !== 'undefined') {
+              pendo.track('course_content_uploaded', {
+                courseId: this.courseId,
+                courseName: this.course.name,
+                documentType: this.uploadContent.documentType,
+                uploaderName: this.uploadContent.uploadedByName,
+                uploaderRollNo: this.uploadContent.uploadedByRollNo,
+                fileName: this.uploadContent.fId,
+                fileSize: '',
+              });
+            }
             // content has been uploaded!
             // now send a async request to send notification to all the 
             // peopl who have upinned this course
@@ -468,6 +503,14 @@ export class CourseDetailsComponent implements OnInit {
       r.fromFid = this.myFId;
       r.fId = this.afs.createId();
       this.firebaseService.ReviewCourse(this.courseId, r).then(_ => {
+        if (typeof pendo !== 'undefined') {
+          pendo.track('course_review_submitted', {
+            courseId: this.courseId,
+            reviewTextLength: r.review.length,
+            reviewerName: r.fromName,
+            reviewerRollNo: r.fromRollNo,
+          });
+        }
         this.course.reviews.unshift(r);
         this.review = '';
         this.firebaseService.AddToMyReviews(r, this.myFId) ;
@@ -609,6 +652,14 @@ export class CourseDetailsComponent implements OnInit {
 
 
           this.firebaseService.savePinnedCourses(this.myFId,pc).then(()=> {
+            if (typeof pendo !== 'undefined') {
+              pendo.track('course_pinned', {
+                courseId: this.courseId,
+                courseName: this.course.name,
+                action: 'pin',
+                userRollNo: this.profile.rollNo,
+              });
+            }
             this.profile.myPinnedCourses.unshift(pc);
             console.log('this course is added to pinned courses!');
             // also, check here if the innerhtml automatically gets converted to new status
@@ -635,6 +686,14 @@ export class CourseDetailsComponent implements OnInit {
           // get this pinned course array
          
           this.firebaseService.removeCourseFromMyPinnedCourses(this.myFId,pinnedCourse).then( () => {
+            if (typeof pendo !== 'undefined') {
+              pendo.track('course_pinned', {
+                courseId: this.courseId,
+                courseName: this.course.name,
+                action: 'unpin',
+                userRollNo: this.profile.rollNo,
+              });
+            }
             document.getElementById('coursePinButton').innerText = `Pin`;
             // remove me from my pinned Courses
             this.firebaseService.removeMyStudentObjectAfterIunpinACourse(pinnedCourse.id, this.myFId).then( () => {

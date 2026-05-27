@@ -229,6 +229,12 @@ export class MyprofileComponent implements OnInit {
     }
 
     RemoveThisSkill(skill: MySkills){
+      if (typeof pendo !== 'undefined') {
+        pendo.track('skill_removed_from_profile', {
+          skillId: skill.id,
+          skillName: skill.name,
+        });
+      }
       this.firebaseService.removeSkillFromMySkills(this.myFId,skill).then( () => {
         // remove me from my pinned Courses
         this.firebaseService.removeMyStudentObjectAfterIRemoveASkill(this.myFId, skill.id).then( () => {
