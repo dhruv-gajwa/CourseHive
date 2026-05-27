@@ -208,10 +208,19 @@ Login(content: any) {
           myNewNotificationNumber: _doc.myNewNotificationNumber
         }
       });
+      if (typeof pendo !== 'undefined') {
+        pendo.track('user_logged_in', {
+          email: _doc.fId,
+          browserName: this.getBrowserName(),
+          isMobile: this.isMobile(),
+          notificationOption: this.getTheOptionForNotificationSubcriptionObjectStorageTag(),
+          karmaPoints: _doc.karmaPoints,
+        });
+      }
     });
 
 
-    this.pushService.getpushSubscriptionObjectFromServer(this.authservice.getMyFId(), 
+    this.pushService.getpushSubscriptionObjectFromServer(this.authservice.getMyFId(),
       this.getTheOptionForNotificationSubcriptionObjectStorageTag()).subscribe( res => {
       if(res !== undefined){
         // ask to please allow notification display!
@@ -238,6 +247,11 @@ Login(content: any) {
 sendPasswordResetEmaail(content: any) {
   this.authservice.sendPasswordResetEmaail(this.email).then(_ => {
     console.log( _ );
+    if (typeof pendo !== 'undefined') {
+      pendo.track('password_reset_requested', {
+        email: this.email,
+      });
+    }
     this.resetMessage = 'Link sent to your email address ' + this.email ;
     this.modalService.open(content);
   }).catch( err => {
@@ -301,6 +315,14 @@ signUpUsingEmailAndPassword() {
             myNewNotificationNumber: p.myNewNotificationNumber
           }
         });
+        if (typeof pendo !== 'undefined') {
+          pendo.track('user_registered', {
+            email: this.email,
+            name: this.name,
+            rollNo: p.rollNo,
+            registrationMethod: 'email_password',
+          });
+        }
         this.authservice.updateBAsicProfileDetails(this.image, this.name).then( _ => {
           this.authservice.sendVerificationMail(this.email).then( _ => {
 
@@ -334,7 +356,14 @@ subscribeToPush() {
           console.log(pushSubscription.getKey('p256dh'));
           this.pushService.sendpushSubscriptionObjectToServer(JSON.stringify(pushSubscription), this.authservice.getMyFId(),
           this.getTheOptionForNotificationSubcriptionObjectStorageTag()).then(res => {
-            console.log(res)
+            console.log(res);
+            if (typeof pendo !== 'undefined') {
+              pendo.track('push_notification_subscribed', {
+                browserName: this.getBrowserName(),
+                isMobile: this.isMobile(),
+                subscriptionStatus: 'subscribed',
+              });
+            }
           });
          // window.open(`https://stackoverflow.com/questions/31328365/how-to-start-http-server-locally`);
           // this.pushService.addSubscriber(pushSubscription)
