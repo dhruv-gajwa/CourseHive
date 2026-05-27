@@ -94,21 +94,25 @@ export class MyprofileComponent implements OnInit {
 
   DeleteReview(review: Review) {
     this.firebaseService.deleteReview( review, this.myFId).then( _ => {
-      pendo.track('review_deleted', {
-        courseId: review.courseId,
-        reviewId: review.fId
-      });
+      if (typeof pendo !== 'undefined') {
+        pendo.track('review_deleted', {
+          courseId: review.courseId,
+          reviewId: review.fId
+        });
+      }
       this.profile.myReviews.splice(this.profile.myReviews.indexOf(review), 1);
     });
   }
 
   DeleteContent(content: Content) {
     this.firebaseService.deleteContent( content, this.myFId).then( _ => {
-      pendo.track('content_deleted', {
-        courseId: content.courseId,
-        contentId: content.fId,
-        documentType: content.documentType
-      });
+      if (typeof pendo !== 'undefined') {
+        pendo.track('content_deleted', {
+          courseId: content.courseId,
+          contentId: content.fId,
+          documentType: content.documentType
+        });
+      }
       this.profile.myUploads.splice(this.profile.myUploads.indexOf(content), 1);
     });
   }
@@ -210,11 +214,13 @@ export class MyprofileComponent implements OnInit {
         // Now Add this studentInPinnedCOurse to backed
         // here update to backend
         this.firebaseService.savePinnedCourses(this.myFId,pc).then(()=> {
-          pendo.track('pinned_course_added_from_profile', {
-            courseId: pc.id,
-            courseName: pc.name,
-            totalPinnedCourses: this.profile.myPinnedCourses.length + 1
-          });
+          if (typeof pendo !== 'undefined') {
+            pendo.track('pinned_course_added_from_profile', {
+              courseId: pc.id,
+              courseName: pc.name,
+              totalPinnedCourses: this.profile.myPinnedCourses.length + 1
+            });
+          }
           this.profile.myPinnedCourses.unshift(pc);
           // now add myprofile to skill subset
           this.firebaseService.AddStudentReferenceInPinnedCourse(studentInPinnedCourse,pc.id)
@@ -244,10 +250,12 @@ export class MyprofileComponent implements OnInit {
 
     RemoveThisSkill(skill: MySkills){
       this.firebaseService.removeSkillFromMySkills(this.myFId,skill).then( () => {
-        pendo.track('skill_removed_from_profile', {
-          skillId: skill.id,
-          skillName: skill.name
-        });
+        if (typeof pendo !== 'undefined') {
+          pendo.track('skill_removed_from_profile', {
+            skillId: skill.id,
+            skillName: skill.name
+          });
+        }
         // remove me from my pinned Courses
         this.firebaseService.removeMyStudentObjectAfterIRemoveASkill(this.myFId, skill.id).then( () => {
           // remove this pinned course from my object
@@ -273,12 +281,14 @@ export class MyprofileComponent implements OnInit {
          // this.firebaseService.setNewSkill()
          this.firebaseService.setNewSkill(newSKillJSON).then(res => {
            console.log(res, "NEw Skill Added");
-           pendo.track('new_skill_created', {
-             skillId: newSKillJSON['id'],
-             skillName: newSKillJSON['name'],
-             createdBy: this.myFId,
-             source: 'profile'
-           });
+           if (typeof pendo !== 'undefined') {
+             pendo.track('new_skill_created', {
+               skillId: newSKillJSON['id'],
+               skillName: newSKillJSON['name'],
+               createdBy: this.myFId,
+               source: 'profile'
+             });
+           }
          }).catch(e => {
            console.log(e);
          });
@@ -318,14 +328,16 @@ export class MyprofileComponent implements OnInit {
       } else {
         this.firebaseService.addSkillInStudentData(mySkill, this.myFId).then(()=> {
           console.log('added To My Skills');
-          pendo.track('skill_added_to_profile', {
-            skillId: mySkill.id,
-            skillName: mySkill.name,
-            expertiseLevel: mySkill.expertiseLevel,
-            description: mySkill.description ? mySkill.description.substring(0, 100) : '',
-            isNewSkill: false,
-            source: 'profile'
-          });
+          if (typeof pendo !== 'undefined') {
+            pendo.track('skill_added_to_profile', {
+              skillId: mySkill.id,
+              skillName: mySkill.name,
+              expertiseLevel: mySkill.expertiseLevel,
+              description: mySkill.description ? mySkill.description.substring(0, 100) : '',
+              isNewSkill: false,
+              source: 'profile'
+            });
+          }
           let studentInSkill = new StudentsInSkills();
           studentInSkill.name = this.profile.name;
           studentInSkill.rollNo = this.profile.rollNo;
@@ -341,10 +353,12 @@ export class MyprofileComponent implements OnInit {
     RemoveThisPinnedCourse(e:Event ,pinnedCourse: MyPinnedCourses){
       e.stopPropagation();
       this.firebaseService.removeCourseFromMyPinnedCourses(this.myFId,pinnedCourse).then( () => {
-        pendo.track('pinned_course_removed_from_profile', {
-          courseId: pinnedCourse.id,
-          remainingPinnedCourses: this.profile.myPinnedCourses.length - 1
-        });
+        if (typeof pendo !== 'undefined') {
+          pendo.track('pinned_course_removed_from_profile', {
+            courseId: pinnedCourse.id,
+            courseName: pinnedCourse.name
+          });
+        }
         // remove me from my pinned Courses
         this.firebaseService.removeMyStudentObjectAfterIunpinACourse(pinnedCourse.id, this.myFId).then( () => {
           // remove this pinned course from my object
@@ -373,9 +387,11 @@ export class MyprofileComponent implements OnInit {
     }
 
     cleanNotifications(){
-      pendo.track('notifications_cleared', {
-        notificationCount: this.profile.myNotifications ? this.profile.myNotifications.length : 0
-      });
+      if (typeof pendo !== 'undefined') {
+        pendo.track('notifications_cleared', {
+          notificationCount: this.profile.myNotifications ? this.profile.myNotifications.length : 0
+        });
+      }
       this.profile.myNotifications = [];
       this.firebaseService.cleanNotifications(this.myFId);
     }
